@@ -4,6 +4,7 @@ import com.chatloco.twitch.application.dto.GameStateResponse;
 import com.chatloco.twitch.domain.model.GameRoom;
 import com.chatloco.twitch.domain.model.GameState;
 import com.chatloco.twitch.domain.model.Player;
+import com.chatloco.twitch.domain.model.SituationData;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,6 @@ import java.util.concurrent.ThreadLocalRandom;
 @Service
 public class GameEngine {
 
-    public static final long VOTING_TIME = 20_000;
     public static final long RESULT_TIME = 5_000;
 
     // =====================================================
@@ -32,8 +32,14 @@ public class GameEngine {
     // =====================================================
     private final SimpMessagingTemplate messagingTemplate;
 
-    public GameEngine(SimpMessagingTemplate messagingTemplate) {
+    private final SituationEngine situationEngine;
+
+    public GameEngine(
+            SimpMessagingTemplate messagingTemplate,
+            SituationEngine situationService
+    ) {
         this.messagingTemplate = messagingTemplate;
+        this.situationEngine = situationService;
     }
 
     // =====================================================
@@ -132,8 +138,16 @@ public class GameEngine {
             room.nextRound();
             room.setState(GameState.VOTING);
 
-            room.setCurrentSituation(randomSituation());
-            room.setOptions(randomOptions());
+            SituationData data =
+                    situationEngine.getRandom();
+
+            room.setCurrentSituation(
+                    data.getSituation()
+            );
+
+            room.setOptions(
+                    data.getOptions()
+            );
 
             room.setChatChoice(null);
             room.setStreamerChoice(null);
@@ -163,9 +177,14 @@ public class GameEngine {
 
             if (room.getState() != GameState.VOTING) return;
 
-            System.out.println("USERNAME: " + username);
-            System.out.println("PLAYERS: " + room.getPlayers().keySet());
-            if (!room.getPlayers().containsKey(username)) return;
+            boolean isStreamer =
+                    username.equalsIgnoreCase(room.getStreamer());
+
+            if (!isStreamer &&
+                    !room.getPlayers().containsKey(username)) {
+                return;
+            }
+
             if (!room.getOptions().contains(option)) return;
 
             long now = System.currentTimeMillis();
@@ -175,19 +194,22 @@ public class GameEngine {
 
             room.getLastVoteTime().put(username, now);
 
-
+            // registrar voto
             room.getVotes().put(username, option);
-
-            System.out.println(room.getVotes());
-
-            System.out.println("VOTO REGISTRADO");
-
 
             updateVotePercentages(room);
 
-            System.out.println(room.getVotePercentages());
-
             room.setLastActivityTime(now);
+
+            // 🔥 streamer cierra ronda
+            if (isStreamer) {
+
+                room.setStreamerChoice(option);
+
+                resolveRound(roomId);
+
+                return;
+            }
 
             broadcast(room);
         }
@@ -239,76 +261,23 @@ public class GameEngine {
 
             if (room.getState() != GameState.VOTING) return;
 
-            room.setState(GameState.RESOLUTION);
-
-            // =====================================================
-            // 🗳️ 1. OBTENER TOP VOTOS DEL CHAT
-            // =====================================================
-            List<String> topOptions = getTopOptions(room);
-
-            // guardamos lo que votó el chat (solo info para UI)
-            room.setChatChoice(topOptions.isEmpty() ? null : String.join(",", topOptions));
-
-            // =====================================================
-            // 🎥 2. STREAMER ELIGE (entre top opciones)
-            // =====================================================
-            String streamerChoice = room.getStreamerChoice();
-            room.setStreamerChoice(streamerChoice);
-
-            // =====================================================
-            // ⚖️ 3. APLICAR RESULTADO FINAL (solo streamer manda)
-            // =====================================================
             String chatWinner = calculateWinner(room);
 
             room.setChatChoice(chatWinner);
 
-            room.setStreamerChoice(streamerChoice);
+            applyResult(
+                    room,
+                    chatWinner,
+                    room.getStreamerChoice()
+            );
 
-            applyResult(room, chatWinner, streamerChoice);
-
-            // =====================================================
-            // ⏱️ 4. CAMBIO A RESULT STATE
-            // =====================================================
             room.setResultStartTime(System.currentTimeMillis());
             room.setState(GameState.RESULT);
 
             room.setLastActivityTime(System.currentTimeMillis());
 
-            // =====================================================
-            // 📡 BROADCAST
-            // =====================================================
             broadcast(room);
         }
-    }
-
-    private String streamerSelect(GameRoom room, List<String> topOptions) {
-
-        if (topOptions == null || topOptions.isEmpty()) {
-            return null;
-        }
-
-        return topOptions.get(
-                ThreadLocalRandom.current().nextInt(topOptions.size())
-        );
-    }
-
-    private List<String> getTopOptions(GameRoom room) {
-
-        if (room.getVotes().isEmpty()) return List.of();
-
-        Map<String, Integer> count = new HashMap<>();
-
-        for (String vote : room.getVotes().values()) {
-            count.put(vote, count.getOrDefault(vote, 0) + 1);
-        }
-
-        int max = Collections.max(count.values());
-
-        return count.entrySet()
-                .stream()
-                .filter(e -> e.getValue() == max)
-                .map(Map.Entry::getKey)
-                .toList();
     }
 
     // =====================================================
@@ -379,33 +348,6 @@ public class GameEngine {
     }
 
     // =====================================================
-    // 🎭 RANDOM DATA
-    // =====================================================
-    private String randomSituation() {
-
-        String[] s = {
-                "Te cancelan en Twitter",
-                "Un sponsor se molesta",
-                "Tu chat se divide",
-                "Te funan por un clip",
-                "Se filtra un mensaje viejo"
-        };
-
-        return s[ThreadLocalRandom.current().nextInt(s.length)];
-    }
-
-    private List<String> randomOptions() {
-
-        String[][] o = {
-                {"Pedir disculpas", "Ignorar", "Hacer meme"},
-                {"Responder serio", "Bromear", "Desaparecer"},
-                {"Hablar en stream", "Twitlonger", "No responder"}
-        };
-
-        return Arrays.asList(o[ThreadLocalRandom.current().nextInt(o.length)]);
-    }
-
-    // =====================================================
     // 🔒 LOCK
     // =====================================================
     private Object getLock(String roomId) {
@@ -450,16 +392,20 @@ public class GameEngine {
 
         synchronized (getLock(roomId)) {
 
+            if (room.getState() != GameState.VOTING) return;
+
             if (!room.getOptions().contains(option)) return;
 
+            // guardar elección streamer
             room.setStreamerChoice(option);
 
-            applyResult(room, option, option);
+            // streamer también vota
+            room.getVotes().put(room.getStreamer(), option);
 
-            room.setState(GameState.RESULT);
-            room.setResultStartTime(System.currentTimeMillis());
+            updateVotePercentages(room);
 
-            broadcast(room);
+            // terminar ronda automáticamente
+            resolveRound(roomId);
         }
     }
 

@@ -1,0 +1,26 @@
+[
+  {
+    "situation": "Te cancelan en Twitter",
+    "options": [
+      "Pedir disculpas",
+      "Ignorar",
+      "Hacer meme"
+    ]
+  },
+  {
+    "situation": "Un sponsor se molesta",
+    "options": [
+      "Responder serio",
+      "Bromear",
+      "Desaparecer"
+    ]
+  },
+  {
+    "situation": "Se filtra un mensaje viejo",
+    "options": [
+      "Hablar en stream",
+      "Twitlonger",
+      "No responder"
+    ]
+  }
+]

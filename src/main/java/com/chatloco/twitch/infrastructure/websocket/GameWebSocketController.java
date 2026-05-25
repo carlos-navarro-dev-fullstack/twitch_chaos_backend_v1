@@ -25,6 +25,7 @@ public class GameWebSocketController {
     // =====================================================
     @MessageMapping("/vote")
     public void vote(VoteMessage payload) {
+
         GameRoom room = gameEngine.getRoom(
                 payload.getRoomId()
         );
@@ -37,11 +38,6 @@ public class GameWebSocketController {
                 payload.getRoomId(),
                 payload.getUsername(),
                 payload.getOption()
-        );
-
-        messagingTemplate.convertAndSend(
-                "/topic/rooms/" + room.getRoomId(),
-                GameStateResponse.from(room)
         );
     }
 

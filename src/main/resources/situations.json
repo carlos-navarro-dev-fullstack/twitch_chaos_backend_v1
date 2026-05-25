@@ -1,26 +1,162 @@
 [
   {
-    "situation": "Te cancelan en Twitter",
+    "situation": "Te hacen clip fuera de contexto",
     "options": [
-      "Pedir disculpas",
-      "Ignorar",
-      "Hacer meme"
+      "Explicar el contexto",
+      "Ignorar el drama",
+      "Reírte del clip"
     ]
   },
   {
-    "situation": "Un sponsor se molesta",
+    "situation": "Tu moderador se pelea con el chat",
     "options": [
-      "Responder serio",
-      "Bromear",
-      "Desaparecer"
+      "Defender al mod",
+      "Pedir calma",
+      "Quitarle mod"
     ]
   },
   {
-    "situation": "Se filtra un mensaje viejo",
+    "situation": "Se cae tu stream en plena colaboración",
     "options": [
-      "Hablar en stream",
-      "Twitlonger",
-      "No responder"
+      "Reiniciar rápido",
+      "Hablar por Twitter",
+      "Cancelar stream"
+    ]
+  },
+  {
+    "situation": "Tu chat empieza a spamear un meme pesado",
+    "options": [
+      "Seguir el meme",
+      "Banear spam",
+      "Ignorarlo"
+    ]
+  },
+  {
+    "situation": "Otro streamer habla mal de ti",
+    "options": [
+      "Responder en directo",
+      "Mandar indirectas",
+      "No darle atención"
+    ]
+  },
+  {
+    "situation": "Filtran tus mensajes privados",
+    "options": [
+      "Pedir privacidad",
+      "Negarlo todo",
+      "Hacer un comunicado"
+    ]
+  },
+  {
+    "situation": "Pierdes una ranked y explotas en stream",
+    "options": [
+      "Pedir perdón",
+      "Culpar al team",
+      "Cerrar el juego"
+    ]
+  },
+  {
+    "situation": "Te acusan de copiar contenido",
+    "options": [
+      "Dar créditos",
+      "Ignorar acusaciones",
+      "Responder agresivo"
+    ]
+  },
+  {
+    "situation": "Tu micrófono falla en pleno stream",
+    "options": [
+      "Arreglarlo en vivo",
+      "Seguir sin mic",
+      "Reiniciar stream"
+    ]
+  },
+  {
+    "situation": "Un viewer dona demasiado dinero",
+    "options": [
+      "Aceptar feliz",
+      "Devolver parte",
+      "Ignorar la donación"
+    ]
+  },
+  {
+    "situation": "Tu chat descubre un tweet antiguo tuyo",
+    "options": [
+      "Explicar el pasado",
+      "Borrar tweets",
+      "Hacer chiste"
+    ]
+  },
+  {
+    "situation": "Un sponsor quiere controlar tu contenido",
+    "options": [
+      "Aceptar condiciones",
+      "Negociar",
+      "Rechazar sponsor"
+    ]
+  },
+  {
+    "situation": "Te stream snippean toda la partida",
+    "options": [
+      "Ocultar pantalla",
+      "Cambiar lobby",
+      "Rage quit"
+    ]
+  },
+  {
+    "situation": "Tu editor sube un video polémico",
+    "options": [
+      "Eliminar video",
+      "Defender al editor",
+      "Decir que fue bait"
+    ]
+  },
+  {
+    "situation": "Te equivocas y filtras tu escritorio",
+    "options": [
+      "Apagar stream",
+      "Actuar normal",
+      "Poner pantalla negra"
+    ]
+  },
+  {
+    "situation": "Tu rival te reta públicamente",
+    "options": [
+      "Aceptar duelo",
+      "Ignorarlo",
+      "Responder con meme"
+    ]
+  },
+  {
+    "situation": "Tu chat pide contenido cringe",
+    "options": [
+      "Hacerlo por views",
+      "Negarte",
+      "Poner encuesta"
+    ]
+  },
+  {
+    "situation": "Un clip tuyo se vuelve viral",
+    "options": [
+      "Aprovechar fama",
+      "Hacer reacción",
+      "Desaparecer unos días"
+    ]
+  },
+  {
+    "situation": "Se escucha una discusión en tu casa durante stream",
+    "options": [
+      "Mutear stream",
+      "Seguir normal",
+      "Terminar directo"
+    ]
+  },
+  {
+    "situation": "Tu comunidad empieza guerra con otro chat",
+    "options": [
+      "Calmar comunidad",
+      "Seguir el caos",
+      "Ignorar situación"
     ]
   }
 ]

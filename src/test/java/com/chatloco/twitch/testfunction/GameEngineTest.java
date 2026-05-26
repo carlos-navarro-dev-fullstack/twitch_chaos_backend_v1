@@ -2,9 +2,7 @@ package com.chatloco.twitch.testfunction;
 
 import com.chatloco.twitch.application.engine.GameEngine;
 import com.chatloco.twitch.application.engine.SituationEngine;
-import com.chatloco.twitch.domain.model.GameRoom;
-import com.chatloco.twitch.domain.model.GameState;
-import com.chatloco.twitch.domain.model.SituationData;
+import com.chatloco.twitch.domain.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -32,9 +30,9 @@ public class GameEngineTest {
         data.setSituation("Test Situation");
 
         data.setOptions(List.of(
-                "Option 1",
-                "Option 2",
-                "Option 3"
+                new OptionData("Option 1", 1, 1),
+                new OptionData("Option 2", 2, -1),
+                new OptionData("Option 3", -2, 3)
         ));
 
         when(situationService.getRandom())
@@ -62,19 +60,19 @@ public class GameEngineTest {
                 "ana"
         );
 
-        String option =
+        OptionData option =
                 room.getOptions().get(0);
 
         gameEngine.registerVote(
                 room.getRoomId(),
                 "carlos",
-                option
+                option.getText()
         );
 
         gameEngine.registerVote(
                 room.getRoomId(),
                 "ana",
-                option
+                option.getText()
         );
 
         gameEngine.resolveRound(

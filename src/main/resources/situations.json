@@ -1,162 +1,162 @@
 [
   {
-    "situation": "Te hacen clip fuera de contexto",
+    "situation": "Tu micrófono deja de funcionar en plena partida",
     "options": [
-      "Explicar el contexto",
-      "Ignorar el drama",
-      "Reírte del clip"
+      { "text": "Intentar arreglarlo en vivo", "funaImpact": 1, "repImpact": 2 },
+      { "text": "Seguir sin micrófono", "funaImpact": 4, "repImpact": -2 },
+      { "text": "Terminar stream", "funaImpact": 2, "repImpact": -1 }
     ]
   },
   {
-    "situation": "Tu moderador se pelea con el chat",
+    "situation": "Un viewer te acusa de copiar contenido",
     "options": [
-      "Defender al mod",
-      "Pedir calma",
-      "Quitarle mod"
-    ]
-  },
-  {
-    "situation": "Se cae tu stream en plena colaboración",
-    "options": [
-      "Reiniciar rápido",
-      "Hablar por Twitter",
-      "Cancelar stream"
-    ]
-  },
-  {
-    "situation": "Tu chat empieza a spamear un meme pesado",
-    "options": [
-      "Seguir el meme",
-      "Banear spam",
-      "Ignorarlo"
-    ]
-  },
-  {
-    "situation": "Otro streamer habla mal de ti",
-    "options": [
-      "Responder en directo",
-      "Mandar indirectas",
-      "No darle atención"
-    ]
-  },
-  {
-    "situation": "Filtran tus mensajes privados",
-    "options": [
-      "Pedir privacidad",
-      "Negarlo todo",
-      "Hacer un comunicado"
-    ]
-  },
-  {
-    "situation": "Pierdes una ranked y explotas en stream",
-    "options": [
-      "Pedir perdón",
-      "Culpar al team",
-      "Cerrar el juego"
-    ]
-  },
-  {
-    "situation": "Te acusan de copiar contenido",
-    "options": [
-      "Dar créditos",
-      "Ignorar acusaciones",
-      "Responder agresivo"
-    ]
-  },
-  {
-    "situation": "Tu micrófono falla en pleno stream",
-    "options": [
-      "Arreglarlo en vivo",
-      "Seguir sin mic",
-      "Reiniciar stream"
-    ]
-  },
-  {
-    "situation": "Un viewer dona demasiado dinero",
-    "options": [
-      "Aceptar feliz",
-      "Devolver parte",
-      "Ignorar la donación"
-    ]
-  },
-  {
-    "situation": "Tu chat descubre un tweet antiguo tuyo",
-    "options": [
-      "Explicar el pasado",
-      "Borrar tweets",
-      "Hacer chiste"
-    ]
-  },
-  {
-    "situation": "Un sponsor quiere controlar tu contenido",
-    "options": [
-      "Aceptar condiciones",
-      "Negociar",
-      "Rechazar sponsor"
-    ]
-  },
-  {
-    "situation": "Te stream snippean toda la partida",
-    "options": [
-      "Ocultar pantalla",
-      "Cambiar lobby",
-      "Rage quit"
-    ]
-  },
-  {
-    "situation": "Tu editor sube un video polémico",
-    "options": [
-      "Eliminar video",
-      "Defender al editor",
-      "Decir que fue bait"
+      { "text": "Defenderte", "funaImpact": 3, "repImpact": 1 },
+      { "text": "Ignorarlo", "funaImpact": 5, "repImpact": -2 },
+      { "text": "Tomarlo con humor", "funaImpact": -2, "repImpact": 3 }
     ]
   },
   {
     "situation": "Te equivocas y filtras tu escritorio",
     "options": [
-      "Apagar stream",
-      "Actuar normal",
-      "Poner pantalla negra"
+      { "text": "Apagar stream rápido", "funaImpact": 1, "repImpact": 1 },
+      { "text": "Actuar normal", "funaImpact": 4, "repImpact": -1 },
+      { "text": "Hacer chistes", "funaImpact": -1, "repImpact": 2 }
     ]
   },
   {
-    "situation": "Tu rival te reta públicamente",
+    "situation": "Tu chat empieza spam de emotes",
     "options": [
-      "Aceptar duelo",
-      "Ignorarlo",
-      "Responder con meme"
+      { "text": "Activar modo lento", "funaImpact": -1, "repImpact": 2 },
+      { "text": "Spamear también", "funaImpact": 2, "repImpact": 1 },
+      { "text": "Enojarte", "funaImpact": 6, "repImpact": -3 }
     ]
   },
   {
-    "situation": "Tu chat pide contenido cringe",
+    "situation": "Pierdes una partida facilísima",
     "options": [
-      "Hacerlo por views",
-      "Negarte",
-      "Poner encuesta"
+      { "text": "Aceptar la derrota", "funaImpact": -2, "repImpact": 2 },
+      { "text": "Culpar al lag", "funaImpact": 3, "repImpact": -1 },
+      { "text": "Rage quit", "funaImpact": 8, "repImpact": -5 }
     ]
   },
   {
-    "situation": "Un clip tuyo se vuelve viral",
+    "situation": "Un viewer te pide saludo para su cumpleaños",
     "options": [
-      "Aprovechar fama",
-      "Hacer reacción",
-      "Desaparecer unos días"
+      { "text": "Saludarlo", "funaImpact": -2, "repImpact": 4 },
+      { "text": "Ignorarlo", "funaImpact": 3, "repImpact": -2 },
+      { "text": "Cobrar por saludo", "funaImpact": 6, "repImpact": -3 }
     ]
   },
   {
-    "situation": "Se escucha una discusión en tu casa durante stream",
+    "situation": "Tu gato aparece en cámara",
     "options": [
-      "Mutear stream",
-      "Seguir normal",
-      "Terminar directo"
+      { "text": "Mostrarlo al chat", "funaImpact": -3, "repImpact": 5 },
+      { "text": "Sacarlo rápido", "funaImpact": 1, "repImpact": -1 },
+      { "text": "Ignorarlo", "funaImpact": 0, "repImpact": 1 }
     ]
   },
   {
-    "situation": "Tu comunidad empieza guerra con otro chat",
+    "situation": "Te llega una donación troll",
     "options": [
-      "Calmar comunidad",
-      "Seguir el caos",
-      "Ignorar situación"
+      { "text": "Leerla igual", "funaImpact": 2, "repImpact": 1 },
+      { "text": "Banear al viewer", "funaImpact": 5, "repImpact": -2 },
+      { "text": "Reírte", "funaImpact": -1, "repImpact": 2 }
+    ]
+  },
+  {
+    "situation": "Te invitan a reaccionar a un video polémico",
+    "options": [
+      { "text": "Reaccionar", "funaImpact": 7, "repImpact": -2 },
+      { "text": "Evitar el tema", "funaImpact": -2, "repImpact": 2 },
+      { "text": "Criticar el video", "funaImpact": 4, "repImpact": 1 }
+    ]
+  },
+  {
+    "situation": "Tu teclado deja de responder",
+    "options": [
+      { "text": "Improvisar", "funaImpact": 1, "repImpact": 2 },
+      { "text": "Culpar al setup", "funaImpact": 3, "repImpact": -1 },
+      { "text": "Cerrar stream", "funaImpact": 2, "repImpact": -2 }
+    ]
+  },
+  {
+    "situation": "Tu chat quiere que juegues ranked",
+    "options": [
+      { "text": "Aceptar", "funaImpact": -1, "repImpact": 3 },
+      { "text": "Negarte", "funaImpact": 2, "repImpact": -1 },
+      { "text": "Hacer encuesta", "funaImpact": 0, "repImpact": 2 }
+    ]
+  },
+  {
+    "situation": "Te equivocas y insultas a un viewer",
+    "options": [
+      { "text": "Pedir perdón", "funaImpact": -4, "repImpact": 5 },
+      { "text": "Decir que fue broma", "funaImpact": 3, "repImpact": -1 },
+      { "text": "Doblar la apuesta", "funaImpact": 9, "repImpact": -6 }
+    ]
+  },
+  {
+    "situation": "Tu rival stream snipéa la partida",
+    "options": [
+      { "text": "Reportarlo", "funaImpact": -1, "repImpact": 2 },
+      { "text": "Insultarlo", "funaImpact": 6, "repImpact": -3 },
+      { "text": "Tomarlo con humor", "funaImpact": -2, "repImpact": 3 }
+    ]
+  },
+  {
+    "situation": "Tu cámara se desenfoca",
+    "options": [
+      { "text": "Arreglarla", "funaImpact": 0, "repImpact": 2 },
+      { "text": "Seguir así", "funaImpact": 2, "repImpact": -1 },
+      { "text": "Apagar cámara", "funaImpact": 1, "repImpact": 0 }
+    ]
+  },
+  {
+    "situation": "Un viewer filtra spoilers del juego",
+    "options": [
+      { "text": "Banearlo", "funaImpact": 1, "repImpact": 1 },
+      { "text": "Ignorarlo", "funaImpact": 3, "repImpact": -1 },
+      { "text": "Spoilear tú también", "funaImpact": 7, "repImpact": -4 }
+    ]
+  },
+  {
+    "situation": "Tu chat quiere karaoke",
+    "options": [
+      { "text": "Cantar", "funaImpact": -2, "repImpact": 4 },
+      { "text": "Negarte", "funaImpact": 1, "repImpact": -1 },
+      { "text": "Poner autotune", "funaImpact": 0, "repImpact": 2 }
+    ]
+  },
+  {
+    "situation": "Se cae Twitch por unos minutos",
+    "options": [
+      { "text": "Esperar tranquilo", "funaImpact": -1, "repImpact": 1 },
+      { "text": "Quejarte en Twitter", "funaImpact": 2, "repImpact": -1 },
+      { "text": "Hacer stream en otra plataforma", "funaImpact": 0, "repImpact": 3 }
+    ]
+  },
+  {
+    "situation": "Un viewer dona y pide mod",
+    "options": [
+      { "text": "Decir que no", "funaImpact": -1, "repImpact": 2 },
+      { "text": "Darle mod", "funaImpact": 4, "repImpact": -2 },
+      { "text": "Hacer votación", "funaImpact": 0, "repImpact": 1 }
+    ]
+  },
+  {
+    "situation": "Te comparan con otro streamer famoso",
+    "options": [
+      { "text": "Tomarlo bien", "funaImpact": -2, "repImpact": 3 },
+      { "text": "Enojarte", "funaImpact": 5, "repImpact": -3 },
+      { "text": "Hacer meme", "funaImpact": 0, "repImpact": 2 }
+    ]
+  },
+  {
+    "situation": "Tu stream tiene eco",
+    "options": [
+      { "text": "Arreglar audio", "funaImpact": -1, "repImpact": 2 },
+      { "text": "Ignorarlo", "funaImpact": 4, "repImpact": -2 },
+      { "text": "Culpar al chat", "funaImpact": 6, "repImpact": -4 }
     ]
   }
 ]

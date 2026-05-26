@@ -21,13 +21,30 @@ public class RoundScheduler {
 
         for (GameRoom room : gameEngine.getRooms()) {
 
-            if (room.getState() == GameState.RESULT) {
+            synchronized (gameEngine.getLock(room.getRoomId())) {
 
-                long elapsed = System.currentTimeMillis() - room.getResultStartTime();
-
-                if (elapsed >= GameEngine.RESULT_TIME) {
-                    gameEngine.startRound(room);
+                if (room.getState() != GameState.RESULT) {
+                    continue;
                 }
+
+                long elapsed =
+                        System.currentTimeMillis()
+                                - room.getResultStartTime();
+
+                if (elapsed < GameEngine.RESULT_TIME) {
+                    continue;
+                }
+
+                // 🔥 FIN DEL JUEGO
+                if (room.getRound() >= GameRoom.MAX_ROUNDS) {
+
+                    room.setGameFinished(true);
+                    room.setState(GameState.GAME_OVER);
+
+                    continue;
+                }
+
+                gameEngine.startRound(room);
             }
         }
     }

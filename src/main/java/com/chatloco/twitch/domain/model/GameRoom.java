@@ -12,6 +12,9 @@ public class GameRoom {
 
     private String roomId;
 
+    private boolean resolving = false;
+
+
     private GameState state = GameState.WAITING_PLAYERS;
 
     private int round = 0;
@@ -22,18 +25,17 @@ public class GameRoom {
 
     private Map<String, Player> players = new ConcurrentHashMap<>();
 
-    private Map<String, String> votes = new ConcurrentHashMap<>();
+    private Map<String, OptionData> votes = new ConcurrentHashMap<>();
     private Map<String, Long> lastVoteTime = new ConcurrentHashMap<>();
 
     private String currentSituation;
-    private List<String> options = new ArrayList<>();
+    private List<OptionData> options = new ArrayList<>();
 
     private Map<String, Integer> votePercentages = new HashMap<>();
-
     private Map<String, Integer> voteCounts = new HashMap<>();
 
-    private String chatChoice;
-    private String streamerChoice;
+    private OptionData chatChoice;
+    private OptionData streamerChoice;
 
     private int reputation = 100;
     private int funa = 0;
@@ -43,15 +45,20 @@ public class GameRoom {
 
     private long lastActivityTime = System.currentTimeMillis();
 
+    // =========================
+    // GAME FINISH
+    // =========================
     public boolean isGameFinished() {
-
         return gameFinished
-                || round >= MAX_ROUNDS
+                || round > MAX_ROUNDS
                 || reputation <= 0
                 || funa >= 100;
     }
 
+    // =========================
+    // ROUND CONTROL
+    // =========================
     public void nextRound() {
-        round++;
+        this.round++;
     }
 }

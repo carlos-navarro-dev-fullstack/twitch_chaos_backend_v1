@@ -9,5 +9,5 @@ public class SituationData {
 
     private String situation;
 
-    private List<String> options;
+    private List<OptionData> options;
 }

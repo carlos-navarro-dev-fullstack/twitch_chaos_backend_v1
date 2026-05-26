@@ -1,16 +1,12 @@
 package com.chatloco.twitch.application.engine;
 
 import com.chatloco.twitch.application.dto.GameStateResponse;
-import com.chatloco.twitch.domain.model.GameRoom;
-import com.chatloco.twitch.domain.model.GameState;
-import com.chatloco.twitch.domain.model.Player;
-import com.chatloco.twitch.domain.model.SituationData;
+import com.chatloco.twitch.domain.model.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
 
 @Service
 public class GameEngine {
@@ -104,6 +100,8 @@ public class GameEngine {
 
         synchronized (getLock(roomId)) {
 
+            if (room.isGameFinished()) return;
+
             room.getPlayers().putIfAbsent(
                     username,
                     new Player(username, 0)
@@ -122,44 +120,32 @@ public class GameEngine {
 
         synchronized (getLock(room.getRoomId())) {
 
+            System.out.println(room.getRound());
+
             if (room.isGameFinished()) {
+                System.out.println("falleeeee");
                 room.setState(GameState.GAME_OVER);
                 broadcast(room);
                 return;
             }
 
-            if (room.getRound() >= GameRoom.MAX_ROUNDS) {
-                room.setGameFinished(true);
-                room.setState(GameState.GAME_OVER);
-                broadcast(room);
-                return;
-            }
+            int nextRound = room.getRound() + 1;
 
-            room.nextRound();
+            room.setRound(nextRound);
             room.setState(GameState.VOTING);
 
-            SituationData data =
-                    situationEngine.getRandom();
+            SituationData data = situationEngine.getRandom();
 
-            room.setCurrentSituation(
-                    data.getSituation()
-            );
+            room.setCurrentSituation(data.getSituation());
+            room.setOptions(data.getOptions());
 
-            room.setOptions(
-                    data.getOptions()
-            );
+            room.setVotes(new ConcurrentHashMap<>());
+            room.setLastVoteTime(new ConcurrentHashMap<>());
+            room.setVoteCounts(new HashMap<>());
+            room.setVotePercentages(new HashMap<>());
 
-            room.setChatChoice(null);
             room.setStreamerChoice(null);
-
-            room.getVotes().clear();
-            room.getLastVoteTime().clear();
-
-            room.getVotePercentages().clear();
-            room.getVoteCounts().clear();
-
-            room.setRoundStartTime(System.currentTimeMillis());
-            room.setLastActivityTime(System.currentTimeMillis());
+            room.setChatChoice(null);
 
             broadcast(room);
         }
@@ -168,10 +154,10 @@ public class GameEngine {
     // =====================================================
     // 🗳️ REGISTER VOTE
     // =====================================================
-    public void registerVote(String roomId, String username, String option) {
+    public void registerVote(String roomId, String username, String optionText) {
 
         GameRoom room = rooms.get(roomId);
-        if (room == null) return;
+        if (room == null || room.isGameFinished()) return;
 
         synchronized (getLock(roomId)) {
 
@@ -185,7 +171,13 @@ public class GameEngine {
                 return;
             }
 
-            if (!room.getOptions().contains(option)) return;
+            // 🔥 buscar opción correctamente
+            OptionData selected = room.getOptions().stream()
+                    .filter(o -> o.getText().equals(optionText))
+                    .findFirst()
+                    .orElse(null);
+
+            if (selected == null) return;
 
             long now = System.currentTimeMillis();
             Long last = room.getLastVoteTime().get(username);
@@ -194,8 +186,8 @@ public class GameEngine {
 
             room.getLastVoteTime().put(username, now);
 
-            // registrar voto
-            room.getVotes().put(username, option);
+            // 🗳️ guardar voto
+            room.getVotes().put(username, selected);
 
             updateVotePercentages(room);
 
@@ -203,11 +195,8 @@ public class GameEngine {
 
             // 🔥 streamer cierra ronda
             if (isStreamer) {
-
-                room.setStreamerChoice(option);
-
+                room.setStreamerChoice(selected);
                 resolveRound(roomId);
-
                 return;
             }
 
@@ -217,66 +206,93 @@ public class GameEngine {
 
     private void updateVotePercentages(GameRoom room) {
 
-        Map<String, Integer> counts = new HashMap<>();
+        Map<OptionData, Integer> counts = new HashMap<>();
 
-        for (String vote : room.getVotes().values()) {
-
-            counts.put(
-                    vote,
-                    counts.getOrDefault(vote, 0) + 1
-            );
+        for (OptionData vote : room.getVotes().values()) {
+            counts.put(vote, counts.getOrDefault(vote, 0) + 1);
         }
 
         int total = room.getVotes().size();
 
-        Map<String, Integer> percentages =
-                new HashMap<>();
+        Map<String, Integer> percentages = new HashMap<>();
 
-        for (String option : room.getOptions()) {
+        for (OptionData option : room.getOptions()) {
 
-            int count =
-                    counts.getOrDefault(option, 0);
+            int count = counts.getOrDefault(option, 0);
 
-            int percent =
-                    total == 0
-                            ? 0
-                            : (count * 100) / total;
+            int percent = total == 0 ? 0 : (count * 100) / total;
 
-            percentages.put(option, percent);
+            percentages.put(option.getText(), percent);
         }
 
-        room.setVoteCounts(counts);
+        room.setVoteCounts(
+                counts.entrySet().stream()
+                        .collect(java.util.stream.Collectors.toMap(
+                                e -> e.getKey().getText(),
+                                java.util.Map.Entry::getValue
+                        ))
+        );
+
         room.setVotePercentages(percentages);
     }
+
 
     // =====================================================
     // ⚖️ RESOLVE ROUND
     // =====================================================
     public void resolveRound(String roomId) {
 
+        System.out.println("llegue a resolve round");
+
         GameRoom room = rooms.get(roomId);
         if (room == null) return;
 
         synchronized (getLock(roomId)) {
 
-            if (room.getState() != GameState.VOTING) return;
+            if (room.isGameFinished()) return;
 
-            String chatWinner = calculateWinner(room);
+            // 🔒 SOLO ESTE CONTROL
+            if (room.isResolving()) return;
+            room.setResolving(true);
 
-            room.setChatChoice(chatWinner);
+            try {
 
-            applyResult(
-                    room,
-                    chatWinner,
-                    room.getStreamerChoice()
-            );
+                System.out.println("llegue a resolve round2");
 
-            room.setResultStartTime(System.currentTimeMillis());
-            room.setState(GameState.RESULT);
+                if (!GameState.VOTING.equals(room.getState())) return;
 
-            room.setLastActivityTime(System.currentTimeMillis());
+                OptionData chatOption = calculateWinner(room);
+                OptionData streamerOption = room.getStreamerChoice();
 
-            broadcast(room);
+                if (chatOption == null) chatOption = room.getOptions().get(0);
+                if (streamerOption == null) streamerOption = chatOption;
+
+                room.setChatChoice(chatOption);
+
+                applyResult(room, chatOption);
+                applyResult(room, streamerOption);
+
+                System.out.println("ssssss");
+                checkGameOver(room);
+
+                if (room.isGameFinished()) {
+                    System.out.println("GAME OVER");
+
+                    room.setState(GameState.GAME_OVER);
+                    broadcast(room);
+                    return;
+                }
+
+                room.setState(GameState.RESULT);
+                room.setResultStartTime(System.currentTimeMillis());
+
+                System.out.println(":3");
+
+                broadcast(room);
+
+            } finally {
+                room.setResolving(false);
+            }
         }
     }
 
@@ -305,41 +321,61 @@ public class GameEngine {
         return GameStateResponse.from(room);
     }
 
+    private void finishGame(GameRoom room, String reason) {
+
+        room.setGameFinished(true);
+        room.setState(GameState.GAME_OVER);
+
+        room.setLastActivityTime(System.currentTimeMillis());
+
+        System.out.println("🏁 GAME OVER: " + reason);
+
+        broadcast(room);
+    }
+
+    private void checkGameOver(GameRoom room) {
+        System.out.println("locas");
+        if (room.getReputation() <= 0 || room.getFuna() >= 100) {
+            System.out.println("animeeeee");
+            room.setGameFinished(true);
+            room.setState(GameState.GAME_OVER);
+        }
+
+        if (room.getRound() >= GameRoom.MAX_ROUNDS) {
+            System.out.println("hola :3");
+            room.setGameFinished(true);
+            room.setState(GameState.GAME_OVER);
+        }
+    }
+
     // =====================================================
     // 🧠 APPLY RESULT
     // =====================================================
-    private void applyResult(GameRoom room, String chat, String streamer) {
+    private void applyResult(GameRoom room, OptionData option) {
 
-        if (chat == null) return;
+        room.setFuna(room.getFuna() + option.getFunaImpact());
+        room.setReputation(room.getReputation() + option.getRepImpact());
 
-        if (chat.equals(streamer)) {
-            room.setReputation(room.getReputation() + 5);
-            room.setFuna(room.getFuna() - 5);
-        } else {
-            room.setReputation(room.getReputation() - 10);
-            room.setFuna(room.getFuna() + 10);
-        }
-
-        room.setReputation(Math.max(0, Math.min(100, room.getReputation())));
         room.setFuna(Math.max(0, Math.min(100, room.getFuna())));
+        room.setReputation(Math.max(0, Math.min(100, room.getReputation())));
     }
 
     // =====================================================
     // 🗳️ WINNER
     // =====================================================
-    private String calculateWinner(GameRoom room) {
+    private OptionData calculateWinner(GameRoom room) {
 
         if (room.getVotes().isEmpty()) return null;
 
-        Map<String, Integer> count = new HashMap<>();
+        Map<OptionData, Integer> count = new HashMap<>();
 
-        for (String vote : room.getVotes().values()) {
+        for (OptionData vote : room.getVotes().values()) {
             count.put(vote, count.getOrDefault(vote, 0) + 1);
         }
 
         int max = Collections.max(count.values());
 
-        List<String> winners = count.entrySet().stream()
+        List<OptionData> winners = count.entrySet().stream()
                 .filter(e -> e.getValue() == max)
                 .map(Map.Entry::getKey)
                 .toList();
@@ -350,7 +386,7 @@ public class GameEngine {
     // =====================================================
     // 🔒 LOCK
     // =====================================================
-    private Object getLock(String roomId) {
+    public Object getLock(String roomId) {
         return locks.computeIfAbsent(roomId, k -> new Object());
     }
 
@@ -385,27 +421,30 @@ public class GameEngine {
     }
 
 
-    public void setStreamerChoice(String roomId, String option) {
+    public void setStreamerChoice(String roomId, String optionText) {
 
         GameRoom room = rooms.get(roomId);
         if (room == null) return;
 
         synchronized (getLock(roomId)) {
 
+            if (room.isGameFinished()) return;
+
             if (room.getState() != GameState.VOTING) return;
 
-            if (!room.getOptions().contains(option)) return;
+            if (room.getStreamerChoice() != null) return;
 
-            // guardar elección streamer
-            room.setStreamerChoice(option);
+            OptionData selected = room.getOptions().stream()
+                    .filter(o -> o.getText().equals(optionText))
+                    .findFirst()
+                    .orElse(null);
 
-            // streamer también vota
-            room.getVotes().put(room.getStreamer(), option);
+            if (selected == null) return;
 
-            updateVotePercentages(room);
+            room.setStreamerChoice(selected);
 
-            // terminar ronda automáticamente
-            resolveRound(roomId);
+
+            room.getVotes().put(room.getStreamer(), selected);
         }
     }
 
@@ -416,6 +455,7 @@ public class GameEngine {
 
         synchronized (getLock(roomId)) {
 
+            if (room.isGameFinished()) return;
             room.getPlayers().remove(username);
 
             broadcast(room);

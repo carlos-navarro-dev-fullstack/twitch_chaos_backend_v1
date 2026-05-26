@@ -4,11 +4,7 @@ public enum GameState {
 
     WAITING_PLAYERS,
 
-    ROUND_START,
-
     VOTING,
-
-    RESOLUTION,
 
     RESULT,
 

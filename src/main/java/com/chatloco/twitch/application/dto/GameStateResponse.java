@@ -2,6 +2,7 @@ package com.chatloco.twitch.application.dto;
 
 import com.chatloco.twitch.domain.model.GameRoom;
 import com.chatloco.twitch.domain.model.GameState;
+import com.chatloco.twitch.domain.model.OptionData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +25,7 @@ public class GameStateResponse {
 
     private String situation;
 
-    private List<String> options;
+    private List<OptionData> options;
 
     private int reputation;
 
@@ -32,9 +33,9 @@ public class GameStateResponse {
 
     private int players;
 
-    private String chatChoice;
+    private OptionData chatChoice;
 
-    private String streamerChoice;
+    private OptionData streamerChoice;
 
     private boolean gameFinished;
 
